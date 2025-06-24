@@ -12,6 +12,21 @@ find_package(tf2 REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
+# Create executable
+add_executable(turn_controller src/turn_controller.cpp)
+ament_target_dependencies(turn_controller 
+  rclcpp 
+  tf2 
+  geometry_msgs 
+  nav_msgs
+)
+
+# Install executable
+install(TARGETS
+  turn_controller
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
