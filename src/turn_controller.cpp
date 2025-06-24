@@ -51,13 +51,32 @@ public:
 private:
     // Scene selection and waypoint loading
     void SelectWaypoints() {
-        waypoints_ = {
-            {0.0, 0.0, -0.532},   // initial point -> WP1: Turn 24.8 degrees clockwise
-            {0.0, 0.0, +0.432},   // WP1 -> WP2: Turn 19 degrees counter-clockwise
-            {0.0, 0.0, +0.464},   // WP2 -> WP3: Turn 20.8 degrees counter-clockwise
-            {0.0, 0.0, -0.364}   // WP3 -> initial point 15.1 degrees clockwise
-        };
-        RCLCPP_INFO(this->get_logger(), "Loaded simulation waypoints");
+        switch (scene_number_) {
+            case 1:
+                waypoints_ = {
+                    {0.0, 0.0, -0.532},   // initial point -> WP1: Turn 24.8 degrees clockwise
+                    {0.0, 0.0, +0.432},   // WP1 -> WP2: Turn 19 degrees counter-clockwise
+                    {0.0, 0.0, +0.464},   // WP2 -> WP3: Turn 20.8 degrees counter-clockwise
+                    {0.0, 0.0, -0.364}   // WP3 -> initial point 15.1 degrees clockwise
+                };
+                RCLCPP_INFO(this->get_logger(), "Loaded simulation waypoints");
+                break;
+            
+            case 2:
+                waypoints_ = {
+                    {0.0, 0.0, -0.955},   // initial point -> WP1: Turn 54.7 degrees clockwise
+                    {0.0, 0.0, -0.315},   // WP1 -> WP2: Turn 18 degrees clockwise  
+                    {0.0, 0.0, +1.100}    // WP2 -> initial point: Turn 63 degrees counter-clockwise
+                };
+                RCLCPP_INFO(this->get_logger(), "Loaded real robot waypoints");
+                break;
+            
+            default:
+                RCLCPP_ERROR(this->get_logger(), "Invalid Scene Number: %d", scene_number_);
+                waypoints_ = {{0.0, 0.0, 0.0}};
+
+        }
+        
     }
     // Odometry callback - extract current yaw angle
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
@@ -134,7 +153,7 @@ private:
                 stopRobot();
                 
                 RCLCPP_INFO(this->get_logger(), 
-                           "WP%zu completed! Turned %.1f° (target: %.1f°)",
+                           "Waypoint %zu completed! Turned %.1f° (target: %.1f°)",
                            current_waypoint_index_ + 1,
                            accumulated_angle * 180.0 / M_PI,
                            target_turn_angle * 180.0 / M_PI);
@@ -170,7 +189,7 @@ private:
                 static int debug_counter = 0;
                 if (debug_counter++ % 40 == 0) {
                     RCLCPP_INFO(this->get_logger(), 
-                               "WP%zu: angle_err=%.1f°, ctrl=%.3f, current_yaw=%.1f°, target=%.1f°",
+                               "Waypoint %zu: angle_err=%.1f°, ctrl=%.3f, current_yaw=%.1f°, target=%.1f°",
                                current_waypoint_index_ + 1, 
                                angle_error * 180.0 / M_PI,
                                control_signal,
